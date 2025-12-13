@@ -1,0 +1,37 @@
+CartPoleA2C:
+	- Params.py (lưu các biến, hằng số,..)
+	- Model.py (shared actor và critic)
+		+ def
+	- Agent.py (code Agent sử dụng model.py)
+		+ def
+		+ def
+	- Training.py (vòng lặp huấn luyện )
+		+ def run_env()
+	- Test.py (load model từ file và chạy test)
+	- Main.py (khởi tạo môi trường, huấn luyện agent)
+	- Utils.py (công cụ để xử lý kết quả, vẽ biểu đồ,.. quá trình training)
+	- cartpole_a2c_best.pth (file lưu model)
+
+
+Luồng chạy:
+Main.py khởi tạo môi trường, agent
+	- Traing: 
+		+ Main.py gọi tới Training.py huấn luyện agent
+		+ Training.py update và lấy hành động từ Agent.py
+		+ Agent.py sử dụng Model.py để tính toán
+		+ Training sẽ vẽ biểu đồ quá trình học và lưu model vào file
+	- Testing:
+		+ Main.py gọi tới Test.py để chạy model từ file và vẽ qua pygame
+
+Phân việc dự kiến:
+Long: Model.py, Agent.py
+Hải: Training.py
+Đức Anh: Main.py, Test.py
+Các file Params.py và Utils.py thì sẽ để dùng chung, ai cần thêm biến, công cụ gì thì viết thêm vào.
+Viết clean code, comment và doc đầy đủ.
+
+Timeline:
+7p.m 16/12: hoàn thành các phần việc cá nhân đẩy lên git, xử lý merge conflict trong tối hôm 16
+17-18/12: fix bug, hiệu chỉnh các hằng số, ra demo hoàn chỉnh
+18/12 Long làm nội dung cho slide
+19/12 Đức Anh làm slide, Hải cbi thuyết trình
