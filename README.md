@@ -1,1 +1,1 @@
-# Lab06-A2C
+# CartPoleA2C
