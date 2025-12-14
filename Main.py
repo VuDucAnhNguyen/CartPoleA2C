@@ -1,12 +1,27 @@
-class Main:
-    def __init__(self):
-        print("init")
+import gymnasium as gym
+from Params import params
+from Agent import Agent
+from Training import Training
+from Testing import Testing
 
-    def run(self, mode):
+class Main:
+    def __init__(self, mode):
+        self.mode = mode
+        self.agent = Agent()
+
         if (mode == 0):
-            print(mode)
+            self.env = gym.make(params.env_name, render_mode = None)
+            self.trainer = Training(agent=self.agent, env=self.env)
         else:
-            print(mode)
+            self.env = gym.make(params.env_name, render_mode = "human")
+            self.tester = Testing(agent=self.agent, env=self.env)
+
+
+    def run(self):
+        if (self.mode == 0):
+            self.trainer.start_training()
+        else:
+            self.tester.start_testing()
 
 if (__name__ == "__main__"):
     try:
@@ -19,5 +34,5 @@ if (__name__ == "__main__"):
         print("Invalid input, default mode: Training")
         mode = 0
 
-    A2C = Main()
-    A2C.run(mode = mode)
+    A2C = Main(mode = mode)
+    A2C.run()
