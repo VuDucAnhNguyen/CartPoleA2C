@@ -7,7 +7,7 @@ from Testing import Testing
 class Main:
     def __init__(self, mode):
         self.mode = mode
-        self.agent = Agent()
+        self.agent = Agent(params.input_dim, params.output_dim)
 
         if (mode == 0):
             self.env = gym.make(params.env_name, render_mode = None)
@@ -19,7 +19,7 @@ class Main:
 
     def run(self):
         if (self.mode == 0):
-            self.trainer.start_training()
+            self.trainer.run_env()
         else:
             self.tester.start_testing()
 
