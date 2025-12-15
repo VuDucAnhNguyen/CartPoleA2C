@@ -35,3 +35,19 @@ Timeline:
 17-18/12: fix bug, hiệu chỉnh các hằng số, ra demo hoàn chỉnh
 18/12 Long làm nội dung cho slide
 19/12 Đức Anh làm slide, Hải cbi thuyết trình
+
+// (Long): bổ sung đề bài
+Topic 6: Actor-Critic (A2C) (Mục 3.2.2 + 3.2.3.1)
+Nhiệm vụ: Nâng cấp từ REINFORCE. Có mạng Critic để giảm variance. Dùng bản A2C (Synchronous) cho dễ cài đặt.
+Demo: Cartpole-v1.
+
+// (Long): bổ sung using
+python 3.11.14
+pytorch 2.2.2 bản cpu
+numpy 1.26.4
+gymnasium 1.2.2
+pygame 2.6.1
+matplotlib 3.10.7
+
+// (Long): lệnh active venv
+conda activate "E:\TaiLieuHocTap\NCKH\reiforcment_learning_P\gitTopic6\CartPoleA2C\venv"
