@@ -8,7 +8,7 @@ class Training:
         self.agent = agent
         self.env = env
 
-    def run_env(self):
+    def start_training(self):
         self.agent.model.train()
         params = Params() 
         n_episode = params.training_num_episodes
@@ -45,7 +45,7 @@ class Training:
             smoothed_history.append(running_reward)
             if episode % 10 == 0:
                 print(f"Episode {episode} \t Raw {total_rewards} \t Smooth {running_reward}" )
-        self.agent.save_model("actor_critic.pth")
+        self.agent.save_model("cartpole_a2c_best.pth")
         self.plot_learning_curve(raw_history, smoothed_history)
         self.env.close()
     def plot_learning_curve(self, raw_rewards, smoothed_rewards):

@@ -19,7 +19,7 @@ class Main:
 
     def run(self):
         if (self.mode == 0):
-            self.trainer.run_env()
+            self.trainer.start_training()
         else:
             self.tester.start_testing()
 
