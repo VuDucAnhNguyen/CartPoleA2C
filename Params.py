@@ -15,7 +15,7 @@ class Params:
         self.training_num_episodes = 1000   # Tổng số màn chơi để train
         self.max_steps = 500       # Số bước tối đa mỗi màn (CartPole v1 max là 500)
         
-        self.save_path = "./cartpole_a2c_best.pth"
+        self.save_path = "cartpole_a2c_best.pth"
 
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 

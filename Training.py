@@ -1,45 +1,68 @@
 import gymnasium as gym
+import matplotlib.pyplot as plt
 import torch
-from Params import params  # Import Params instance
-from Utils import utils
 
-class Training():
+from Params import Params
+class Training:
     def __init__(self, agent, env):
         self.agent = agent
         self.env = env
-        torch.manual_seed(params.seed)
-        
+
     def start_training(self):
-        for episode in range(1, params.training_num_episodes + 1):
-            state, _ = self.env.reset(seed=params.seed)  # ✅ seed môi trường và unpack info
+        self.agent.model.train()
+        params = Params() 
+        n_episode = params.training_num_episodes
+        raw_history = []
+        smoothed_history = []
+        running_reward = 0
+        for episode in range(n_episode):
+            done = False
             log_probs = []
-            state_values = []
+            values = []
             rewards = []
             masks = []
-
-            total_reward = 0
-            done = False
-
-            while not done:
-                action, log_prob, state_value = self.agent.get_action(state)
-                
-                next_state, reward, terminated, truncated, _ = self.env.step(action)  # ✅ Gymnasium
-                done = terminated or truncated
-
+            state, info = self.env.reset()
+            total_rewards = 0
+            step = 0
+            while not done and step <= params.max_steps:
+                action, log_prob, value = self.agent.get_action(state)
+                next_state, reward, terminated, truncated, info = self.env.step(action)
+                done = truncated or terminated
                 log_probs.append(log_prob)
-                state_values.append(state_value)
+                values.append(value)
                 rewards.append(reward)
-                masks.append(1 - int(done))
-
+                masks.append(0 if done else 1)
+                total_rewards = total_rewards + reward
                 state = next_state
-                total_reward += reward
-
-            loss = self.agent.compute_loss(log_probs, state_values, rewards, masks)
+                step = step + 1
+            loss = self.agent.compute_loss(log_probs, values, rewards, masks)
             self.agent.update_model(loss)
+            if episode == 0:
+               running_reward = total_rewards
+            else:
+                running_reward = 0.05 * total_rewards + 0.95 * running_reward
+            raw_history.append(total_rewards)
+            smoothed_history.append(running_reward)
+            if episode % 10 == 0:
+                print(f"Episode {episode} \t Raw {total_rewards} \t Smooth {running_reward}" )
+        self.agent.save_model("cartpole_a2c_best.pth")
+        self.plot_learning_curve(raw_history, smoothed_history)
+        self.env.close()
+    def plot_learning_curve(self, raw_rewards, smoothed_rewards):
+        plt.figure(figsize=(10, 6))
+        plt.plot(raw_rewards, label='Raw Reward (Episode)', color='cyan', alpha=0.3)
+        plt.plot(smoothed_rewards, label='Smoothed Reward (Trend)', color='orange', linewidth=2)
+        plt.title("Training Learning Curve (Actor-Critic)")
+        plt.xlabel("Number of Episodes")
+        plt.ylabel("Total Reward per Episode")
+        plt.legend()
+        plt.grid(True)
+        plt.savefig("training_curve.png")
+        plt.show()
+    if __name__ == "main":
+        run_env()
 
-            if episode % 100 == 0:
-                print(f"Episode {episode} | Total Reward: {total_reward:.2f} | Loss: {loss.item():.4f}")
+            
 
-        self.agent.save_model(params.save_path)
-        print(f"Training completed. Model saved to {params.save_path}")
 
+                
