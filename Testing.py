@@ -3,7 +3,7 @@ import torch
 from agent import A2CAgent
 from params import params
 
-env = gym.make(params.env_name, render_mode="human")
+env = gym.make(params.env_name)
 env.reset(seed=params.seed)
 torch.manual_seed(params.seed)
 
