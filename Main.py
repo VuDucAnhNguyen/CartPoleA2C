@@ -1,19 +1,19 @@
 import gymnasium as gym
 from Params import params
-from Agent import Agent
+from Agent import A2CAgent
 from Training import Training
 from Testing import Testing
 
 class Main:
     def __init__(self, mode):
         self.mode = mode
-        self.agent = Agent()
+        self.agent = A2CAgent(input_dim = params.input_dim, n_actions = params.output_dim)
 
         if (mode == 0):
             self.env = gym.make(params.env_name, render_mode = None)
             self.trainer = Training(agent=self.agent, env=self.env)
         else:
-            self.env = gym.make(params.env_name, render_mode = "human")
+            self.env = gym.make(params.env_name, render_mode = "human", max_episode_steps= params.max_steps)
             self.tester = Testing(agent=self.agent, env=self.env)
 
 

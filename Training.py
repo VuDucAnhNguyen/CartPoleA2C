@@ -1,51 +1,45 @@
 import gymnasium as gym
 import torch
-from Agent import A2CAgent
 from Params import params  # Import Params instance
+from Utils import utils
 
-def train():
-    # 1️⃣ Khởi tạo môi trường
-    env = gym.make(params.env_name)
-    torch.manual_seed(params.seed)
+class Training():
+    def __init__(self, agent, env):
+        self.agent = agent
+        self.env = env
+        torch.manual_seed(params.seed)
+        
+    def start_training(self):
+        for episode in range(1, params.training_num_episodes + 1):
+            state, _ = self.env.reset(seed=params.seed)  # ✅ seed môi trường và unpack info
+            log_probs = []
+            state_values = []
+            rewards = []
+            masks = []
 
-    # 2️⃣ Khởi tạo agent
-    agent = A2CAgent(input_dim=params.input_dim, n_actions=params.output_dim)
+            total_reward = 0
+            done = False
 
-    for episode in range(1, params.training_num_episodes + 1):
-        state, _ = env.reset(seed=params.seed)  # ✅ seed môi trường và unpack info
-        log_probs = []
-        state_values = []
-        rewards = []
-        masks = []
+            while not done:
+                action, log_prob, state_value = self.agent.get_action(state)
+                
+                next_state, reward, terminated, truncated, _ = self.env.step(action)  # ✅ Gymnasium
+                done = terminated or truncated
 
-        total_reward = 0
+                log_probs.append(log_prob)
+                state_values.append(state_value)
+                rewards.append(reward)
+                masks.append(1 - int(done))
 
-        for step in range(params.max_steps):
-            action, log_prob, state_value = agent.get_action(state)
-            
-            next_state, reward, terminated, truncated, _ = env.step(action)  # ✅ Gymnasium
-            done = terminated or truncated
+                state = next_state
+                total_reward += reward
 
-            log_probs.append(log_prob)
-            state_values.append(state_value)
-            rewards.append(reward)
-            masks.append(1 - int(done))
+            loss = self.agent.compute_loss(log_probs, state_values, rewards, masks)
+            self.agent.update_model(loss)
 
-            state = next_state
-            total_reward += reward
+            if episode % 100 == 0:
+                print(f"Episode {episode} | Total Reward: {total_reward:.2f} | Loss: {loss.item():.4f}")
 
-            if done:
-                break
+        self.agent.save_model(params.save_path)
+        print(f"Training completed. Model saved to {params.save_path}")
 
-        loss = agent.compute_loss(log_probs, state_values, rewards, masks)
-        agent.update_model(loss)
-
-        if episode % 10 == 0:
-            print(f"Episode {episode} | Total Reward: {total_reward:.2f} | Loss: {loss.item():.4f}")
-
-    agent.save_model(params.save_path)
-    print(f"Training completed. Model saved to {params.save_path}")
-
-
-if __name__ == "__main__":
-    train()

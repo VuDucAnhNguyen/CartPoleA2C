@@ -1,13 +1,14 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from Params import params
 
 class ActorCritic(nn.Module):
     def __init__(self, input_dim, n_actions):
         super(ActorCritic, self).__init__()
-        self.common_layer = nn.Linear(input_dim, 128)
-        self.actor = nn.Linear(128, n_actions)
-        self.critic = nn.Linear(128, 1)
+        self.common_layer = nn.Linear(input_dim, params.hidden_dim)
+        self.actor = nn.Linear(params.hidden_dim, n_actions)
+        self.critic = nn.Linear(params.hidden_dim, 1)
         
     def forward(self, state):
         x = F.relu(self.common_layer(state))

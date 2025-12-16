@@ -1,6 +1,7 @@
 import gymnasium as gym
 import torch
 from Params import params
+from Utils import utils
 
 class Testing():
     def __init__(self, agent, env):
@@ -10,8 +11,7 @@ class Testing():
     def start_testing(self):
         #load model từ file
         try:
-            self.agent.model.load_state_dict(torch.load(params.save_path, map_location=params.device))
-            print("Đã load model thành công!")
+            utils.load_model(agent = self.agent)
         except:
             print(f"Chưa có file model tại {params.save_path}")
             return
@@ -29,7 +29,7 @@ class Testing():
             # Chỉ cần lấy action từ model, không cần tính toán loss
             with torch.no_grad():
                 dist, _ = self.agent.model(state_tensor)
-                action = torch.argmax(dist.probs).item() 
+                action = torch.argmax(dist).item() 
                 
             state, reward, terminated, truncated, _ = self.env.step(action)
             done = terminated or truncated

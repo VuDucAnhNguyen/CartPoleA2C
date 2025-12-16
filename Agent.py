@@ -8,15 +8,16 @@ class A2CAgent:
     def __init__(self, input_dim, n_actions):
         self.gamma = params.gamma
         self.lr = params.learning_rate
-        self.model = ActorCritic(input_dim, n_actions)
+        self.model = ActorCritic(input_dim, n_actions).to(params.device)
         self.optimizer = optim.Adam(self.model.parameters(), lr=self.lr)
         
     def get_action(self, state):
-        state = torch.tensor(state, dtype=torch.float32)
+        state = torch.tensor(state, dtype=torch.float32).to(params.device)
         action_probs, state_value = self.model(state)
         dist = torch.distributions.Categorical(action_probs)
         action = dist.sample()
         log_prob = dist.log_prob(action)
+
         return action.item(), log_prob, state_value
 
     def compute_loss(self, log_probs, state_values, rewards, masks):
@@ -27,7 +28,7 @@ class A2CAgent:
             R = rewards[step] + self.gamma * R * masks[step]
             returns.insert(0, R)
             
-        returns = torch.tensor(returns)
+        returns = torch.tensor(returns).to(params.device)
         log_probs = torch.stack(log_probs)
         state_values = torch.stack(state_values).squeeze()
         
@@ -36,6 +37,7 @@ class A2CAgent:
         actor_loss = -(log_probs * advantage.detach()).mean()
         critic_loss = torch.nn.functional.mse_loss(state_values, returns)
         loss = actor_loss + critic_loss
+
         return loss
 
     def update_model(self, loss):
