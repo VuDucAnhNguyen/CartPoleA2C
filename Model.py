@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from Params import params
+from params import params
 
 class ActorCritic(nn.Module):
     def __init__(self, input_dim, n_actions):

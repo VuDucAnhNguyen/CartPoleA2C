@@ -1,8 +1,8 @@
 import torch
 import torch.optim as optim
 import numpy as np
-from Model import ActorCritic
-from Params import params
+from model import ActorCritic
+from params import params
 
 class A2CAgent:
     def __init__(self, input_dim, n_actions):

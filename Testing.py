@@ -1,7 +1,7 @@
 import gymnasium as gym
 import torch
-from Params import params
-from Utils import utils
+from params import params
+from utils import utils
 
 class Testing():
     def __init__(self, agent, env):
