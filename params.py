@@ -13,8 +13,9 @@ class Params:
         self.gamma = 0.99          # Discount factor (trọng số tương lai)
         self.beta = 0.001
         
-        self.training_num_episodes = 1000   # Tổng số màn chơi để train
-        self.max_steps = 500       # Số bước tối đa mỗi màn (CartPole v1 max là 500)
+        self.training_num_episodes = 2000   # Tổng số màn chơi để train
+        self.max_steps = 500      # Số bước tối đa mỗi màn (CartPole v1 max là 500)
+        self.n_steps = 50
         
         self.save_path = "cartpole_a2c_best.pth"
 

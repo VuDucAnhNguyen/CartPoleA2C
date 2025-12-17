@@ -21,9 +21,9 @@ class A2CAgent:
 
         return action.item(), log_prob, state_value, entropy
 
-    def compute_loss(self, log_probs, state_values, rewards, masks, entropies):
+    def compute_loss(self, log_probs, state_values, rewards, masks, entropies, next_state_value):
         returns = []
-        R = 0
+        R = next_state_value
         
         for step in reversed(range(len(rewards))):
             R = rewards[step] + self.gamma * R * masks[step]
@@ -31,25 +31,20 @@ class A2CAgent:
             
         returns = torch.tensor(returns).to(params.device)
         log_probs = torch.stack(log_probs)
-        state_values = torch.stack(state_values).squeeze()
+        state_values = torch.stack(state_values).view(-1)
         entropy_loss = torch.stack(entropies).mean()
         
         advantage = returns - state_values
         
         actor_loss = -(log_probs * advantage.detach()).mean()
         critic_loss = torch.nn.functional.mse_loss(state_values, returns)
-        loss = actor_loss + 0.5 * critic_loss - params.beta * entropy_loss
+        loss = actor_loss + critic_loss - params.beta * entropy_loss
 
         return loss
 
     def update_model(self, loss):
         self.optimizer.zero_grad()
         loss.backward()
+        torch.nn.utils.clip_grad_norm_(self.model.parameters(), max_norm=0.5)
         self.optimizer.step()
         
-    def save_model(self, path):
-        torch.save(self.model.state_dict(), path)
-        
-    def load_model(self, path):
-        self.model.load_state_dict(torch.load(path))
-        self.model.eval()

@@ -15,7 +15,7 @@ class Training:
         smoothed_history = []
         running_reward = 0
 
-        for episode in range(n_episode):
+        for episode in range(1, n_episode + 1):
             done = False
             log_probs = []
             values = []
@@ -40,13 +40,27 @@ class Training:
 
                 total_rewards = total_rewards + reward
                 state = next_state
-                step = step + 1
+                step += 1
 
-            loss = self.agent.compute_loss(log_probs, values, rewards, masks, entropies)
-            self.agent.update_model(loss)
+                if (step % params.n_steps == 0 or done):
+                    if done:
+                        next_state_value = 0
+                    else:
+                        next_state_tensor = torch.tensor(next_state, dtype=torch.float32).to(params.device)
+                        _, next_value = self.agent.model(next_state_tensor)
+                        next_state_value = next_value.item()
 
-            if episode == 0:
-               running_reward = total_rewards
+                    loss = self.agent.compute_loss(log_probs, values, rewards, masks, entropies, next_state_value)
+                    self.agent.update_model(loss)
+            
+                    log_probs = []
+                    values = []
+                    rewards = []
+                    masks = []
+                    entropies = []
+
+            if episode == 1:
+                running_reward = total_rewards
             else:
                 running_reward = 0.05 * total_rewards + 0.95 * running_reward
 
