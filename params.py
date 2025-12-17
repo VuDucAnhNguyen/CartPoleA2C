@@ -11,6 +11,7 @@ class Params:
         
         self.learning_rate = 1e-3  # Tốc độ học (thường A2C dùng 1e-3 hoặc 3e-4)
         self.gamma = 0.99          # Discount factor (trọng số tương lai)
+        self.beta = 0.001
         
         self.training_num_episodes = 1000   # Tổng số màn chơi để train
         self.max_steps = 500       # Số bước tối đa mỗi màn (CartPole v1 max là 500)

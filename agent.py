@@ -17,10 +17,11 @@ class A2CAgent:
         dist = torch.distributions.Categorical(action_probs)
         action = dist.sample()
         log_prob = dist.log_prob(action)
+        entropy = dist.entropy()
 
-        return action.item(), log_prob, state_value
+        return action.item(), log_prob, state_value, entropy
 
-    def compute_loss(self, log_probs, state_values, rewards, masks):
+    def compute_loss(self, log_probs, state_values, rewards, masks, entropies):
         returns = []
         R = 0
         
@@ -31,12 +32,13 @@ class A2CAgent:
         returns = torch.tensor(returns).to(params.device)
         log_probs = torch.stack(log_probs)
         state_values = torch.stack(state_values).squeeze()
+        entropy_loss = torch.stack(entropies).mean()
         
         advantage = returns - state_values
         
         actor_loss = -(log_probs * advantage.detach()).mean()
         critic_loss = torch.nn.functional.mse_loss(state_values, returns)
-        loss = actor_loss + critic_loss
+        loss = actor_loss + 0.5 * critic_loss - params.beta * entropy_loss
 
         return loss
 

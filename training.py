@@ -21,12 +21,13 @@ class Training:
             values = []
             rewards = []
             masks = []
+            entropies = []
             state, _ = self.env.reset()
             total_rewards = 0
             step = 0
 
             while not done:
-                action, log_prob, value = self.agent.get_action(state)
+                action, log_prob, value, entropy = self.agent.get_action(state)
                 next_state, reward, terminated, truncated, _ = self.env.step(action)
 
                 done = truncated or terminated
@@ -35,12 +36,13 @@ class Training:
                 values.append(value)
                 rewards.append(reward)
                 masks.append(0 if done else 1)
+                entropies.append(entropy)
 
                 total_rewards = total_rewards + reward
                 state = next_state
                 step = step + 1
 
-            loss = self.agent.compute_loss(log_probs, values, rewards, masks)
+            loss = self.agent.compute_loss(log_probs, values, rewards, masks, entropies)
             self.agent.update_model(loss)
 
             if episode == 0:
