@@ -1,7 +1,6 @@
-import gymnasium as gym
-from params import params
-from utils import utils
 import torch
+from utils import utils
+from params import params
 
 class Training:
     def __init__(self, agent, env):
@@ -17,48 +16,41 @@ class Training:
 
         for episode in range(n_episode):
             done = False
-            log_probs = []
-            values = []
-            rewards = []
-            masks = []
+            log_probs, values, rewards, masks, entropies = [], [], [], [], []
             state, _ = self.env.reset()
-            total_rewards = 0
-            step = 0
+            total_reward = 0
 
             while not done:
-                action, log_prob, value = self.agent.get_action(state)
+                action, log_prob, entropy, value = self.agent.select_action(state)
                 next_state, reward, terminated, truncated, _ = self.env.step(action)
+                done = terminated or truncated
 
-                done = truncated or terminated
+                mask = 0.0 if done else 1.0
 
                 log_probs.append(log_prob)
                 values.append(value)
-                rewards.append(reward)
-                masks.append(0 if done else 1)
+                rewards.append(torch.tensor(reward, dtype=torch.float32, device=self.agent.device))
+                masks.append(torch.tensor(mask, dtype=torch.float32, device=self.agent.device))
+                entropies.append(entropy)
 
-                total_rewards = total_rewards + reward
                 state = next_state
-                step = step + 1
+                total_reward += reward
 
-            loss = self.agent.compute_loss(log_probs, values, rewards, masks)
-            self.agent.update_model(loss)
+            # Update agent using n-step returns
+            self.agent.update(log_probs, values, rewards, masks, entropies, next_state)
 
+            # Update running reward
             if episode == 0:
-               running_reward = total_rewards
+                running_reward = total_reward
             else:
-                running_reward = 0.05 * total_rewards + 0.95 * running_reward
+                running_reward = 0.05 * total_reward + 0.95 * running_reward
 
-            raw_history.append(total_rewards)
+            raw_history.append(total_reward)
             smoothed_history.append(running_reward)
 
             if episode % 10 == 0:
-                print(f"Episode {episode} \t Raw {total_rewards} \t Smooth {running_reward}" )
-        
+                print(f"Episode {episode}\tRaw: {total_reward:.2f}\tSmooth: {running_reward:.2f}")
+
         utils.save_model(self.agent)
-        utils.plot_learning_curve(raw_rewards = raw_history, smoothed_rewards = smoothed_history)
+        utils.plot_learning_curve(raw_rewards=raw_history, smoothed_rewards=smoothed_history)
         self.env.close()
-    
-            
-
-
-                
