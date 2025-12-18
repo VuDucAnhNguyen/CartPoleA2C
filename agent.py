@@ -1,6 +1,5 @@
 import torch
 import torch.optim as optim
-import numpy as np
 from model import ActorCritic
 from params import params
 

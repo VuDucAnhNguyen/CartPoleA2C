@@ -1,4 +1,3 @@
-import gymnasium as gym
 from params import params
 from utils import utils
 import torch

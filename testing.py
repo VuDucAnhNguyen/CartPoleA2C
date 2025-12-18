@@ -1,5 +1,5 @@
-import gymnasium as gym
 import torch
+from gymnasium.wrappers import RecordVideo
 from params import params
 from utils import utils
 
@@ -9,6 +9,13 @@ class Testing():
         self.env = env
 
     def start_testing(self):
+        video_env = RecordVideo(
+            self.env, 
+            video_folder = "result",
+            name_prefix="agent_gameplay", # Tên file bắt đầu bằng..
+            episode_trigger=lambda x: True, # Lưu tất cả các ván chơi
+        )
+
         #load model từ file
         try:
             utils.load_model(agent = self.agent)
@@ -18,7 +25,7 @@ class Testing():
         
         self.agent.model.eval() # Chuyển sang chế độ test
 
-        state, _ = self.env.reset()
+        state, _ = video_env.reset()
         done = False
         total_reward = 0
             
@@ -31,11 +38,11 @@ class Testing():
                 dist, _ = self.agent.model(state_tensor)
                 action = torch.argmax(dist).item() 
                 
-            state, reward, terminated, truncated, _ = self.env.step(action)
+            state, reward, terminated, truncated, _ = video_env.step(action)
             done = terminated or truncated
             total_reward += reward
                 
         print(f"Điểm số = {total_reward}")
 
             
-        self.env.close()
+        video_env.close()

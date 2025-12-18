@@ -13,7 +13,7 @@ class Main:
             self.env = gym.make(params.env_name, render_mode = None)
             self.trainer = Training(agent=self.agent, env=self.env)
         else:
-            self.env = gym.make(params.env_name, render_mode = "human", max_episode_steps= params.max_steps)
+            self.env = gym.make(params.env_name, render_mode = "rgb_array", max_episode_steps= params.max_steps)
             self.tester = Testing(agent=self.agent, env=self.env)
 
     def run(self):
